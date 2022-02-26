@@ -7,7 +7,7 @@
   "linkerEnabled": true,
   "resources": {
     "assembly": {
-      "Blipmap.dll": "sha256-DU1dEWvecj4AtybZ\/AtLOBtjog5OR1wvx82GEla3qoY=",
+      "Blipmap.dll": "sha256-SYtzygjztxE0AMMmS6woVVLmpQuGrCBU4rMCdgz8Ee4=",
       "Microsoft.AspNetCore.Components.dll": "sha256-eD8rgfrAUmnsK+z0OyDK5GDlvhJcaPT\/jXEhCYrrDQc=",
       "Microsoft.AspNetCore.Components.Forms.dll": "sha256-LqeJ8RNmZT6bfAdjq0tuKRjrzgBcMTplqxln2KXiQbM=",
       "Microsoft.AspNetCore.Components.Web.dll": "sha256-tnq8SNBGoct\/gdjs5XmG5CLXg8bkqDutn\/bpBLGTjec=",
