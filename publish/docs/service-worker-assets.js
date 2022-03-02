@@ -25,7 +25,7 @@
       "url": "js\/Animations\/BouncyBubbles.js"
     },
     {
-      "hash": "sha256-C7xjSWw3cnugk\/zUk5bWvs\/koJ+PHXgeuILNriTtSRs=",
+      "hash": "sha256-FI9AMVT+EdkyVp\/xz\/oFzuBUGY5m6Kx0bNadnypGLRQ=",
       "url": "js\/BlipmapVisualizerJs.js"
     },
     {
@@ -65,11 +65,11 @@
       "url": "_framework\/icudt_no_CJK.dat"
     },
     {
-      "hash": "sha256-t6ZeEOQ4AbDfDm9zDCYURV0VtNGMxa4zxV0VFVJHiFc=",
+      "hash": "sha256-M+9MmuJ4nZgBgckPt7oTU+xdpLQDPbJEgFrVH6szTv4=",
       "url": "_framework\/blazor.boot.json"
     },
     {
-      "hash": "sha256-DU1dEWvecj4AtybZ\/AtLOBtjog5OR1wvx82GEla3qoY=",
+      "hash": "sha256-Fm6Lh5utQ3wltNsDNMbtiUyeG24\/rc+u7uuHQiQqBLw=",
       "url": "_framework\/Blipmap.dll"
     },
     {
@@ -281,5 +281,5 @@
       "url": "_content\/MudBlazor\/MudBlazor.min.js"
     }
   ],
-  "version": "i6qwhrd9"
+  "version": "IIps4Ksh"
 };

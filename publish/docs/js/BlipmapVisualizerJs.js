@@ -4,13 +4,41 @@ var show = false;
 var currentP5;
 var selectedAnimation;
 
-export function createVisualizer(animationId) {
-    console.log("Creating Visualizer with animation " + animationId + ".");
-    const animations = [lightsBoard, animation0, animationA];
+let lightModel = {
+    isActive: true,
+    animationId: "lights",
+    lights: [],
+    isAnimationActive: true,
+    brightness: 50,
+    colorShiftRate: 5,
+    bpm: 120,
+    framerate: 5,
+    options: {
+        width: 400,
+        height: 400,
+        lightSize: 20,
+        lightRows: 5,
+        lightColumns: 5,
+        backgroundBrightness: 125,
+        tile: {
+            width: 10,
+            height: 10,
+            centerWidthOffset: 5,
+            centerHeightOffset: 5,
+        }
+    },
+}
+
+
+
+export function createVisualizer() {
+    const animations = [shimmer, blink, running];
+    selectedAnimation = animations.find(x => x.id === lightModel.animationId) || animations[0];
+
+    console.log("Creating Visualizer with animation " + selectedAnimation.id + ".");
 
     window.document.getElementById('blipmapvisualizer').innerHTML = '';
 
-    selectedAnimation = animations.find(x => x.id === animationId) || animations[0];
 
     show = true;
     if (show) {
@@ -22,43 +50,48 @@ export function createVisualizer(animationId) {
     }
 }
 
+export function setAnimation(animationId) {
+    console.log("Setting animation to " + animationId);
+    lightModel.animationId = animationId;
+    createVisualizer();
+};
 
 export function setGridSize(sizes) {
     console.log("Setting grid size: Rows = " + sizes.rows + ", Columns = " + sizes.columns + ".");
-    selectedAnimation.options.lightRows = sizes.rows;
-    selectedAnimation.options.lightColumns = sizes.columns;
+    lightModel.options.lightRows = sizes.rows;
+    lightModel.options.lightColumns = sizes.columns;
     createVisualizer(selectedAnimation.id);
 };
 
 export function setActive(isActive) {
     console.log("Setting active = " + isActive);
-    selectedAnimation.state.isActive = isActive;
+    lightModel.isActive = isActive;
 };
 
 export function setFramerate(framerate) {
     console.log("Setting framerate to " + framerate);
-    selectedAnimation.state.framerate = framerate;
-    currentP5.frameRate(selectedAnimation.state.framerate);
+    lightModel.framerate = framerate;
+    currentP5.frameRate(lightModel.framerate);
 };
 
 export function setAnimationActive(isActive) {
     console.log("Setting animation active = " + isActive);
-    selectedAnimation.state.isAnimationActive = isActive;
+    lightModel.isAnimationActive = isActive;
 };
 
 export function setColorShiftRate(rate) {
     console.log("Setting color shift rate to " + rate);
-    selectedAnimation.state.colorShiftRate = rate;
+    lightModel.colorShiftRate = rate;
 };
 
 
 let sketch = function (p) {
     console.log("Intializing new sketch...");
-    console.log({ selectedAnimation });
+    console.log({ lightsBoard });
 
-    p.setup = () => selectedAnimation.setup(p, 'blipmapvisualizer');
+    p.setup = () => lightsBoard.setup(p, 'blipmapvisualizer');
 
-    p.draw = () => selectedAnimation.draw(p);
+    p.draw = () => lightsBoard.draw(p);
 
 };
 
@@ -148,50 +181,108 @@ const animationA = {
     }
 }
 
+const blink = {
+    id: "blink",
+    animateFrame: () => {
+        lightModel.lights.map((row, rowIndex) => {
+            row.map((light, lightIndex) => {
+                if (light.color.r > 0) {
+                    light.color.r = 0;
+                    light.color.g = 0;
+                    light.color.b = 0;
+                } else {
+                    light.color.r = 255;
+                    light.color.g = 255;
+                    light.color.b = 255;
+                }
+            });
+        });
+    }
+}
+
+let running = {
+    id: "running",
+    state: {
+        rowIndex: 0,
+        columnIndex: 0,
+    },
+    animateFrame: () => {
+        //const lightsCount = lightModel.lights.length;
+        //const row = selectedAnimation.state.index lightModel
+        let currRow = false;
+        lightModel.lights.map((row, rowIndex) => {
+            currRow = (rowIndex === selectedAnimation.state.rowIndex);
+
+            row.map((light, lightIndex) => {
+                if ((lightIndex === selectedAnimation.state.columnIndex)) {
+                    //console.log("Correct light [" + lightIndex + ", " + selectedAnimation.state.rowIndex + "]");
+                    light.color.r = 255;
+                    light.color.g = 255;
+                    light.color.b = 255;
+                } else {
+                    //console.log("Not correct light [" + lightIndex + ", " + rowIndex + "]");
+
+                    light.color.r = 50;
+                    light.color.g = 50;
+                    light.color.b = 50;
+                }
+            });
+        });
+        selectedAnimation.state.columnIndex += 1;
+        if (selectedAnimation.state.columnIndex >= lightModel.options.lightColumns) {
+            selectedAnimation.state.columnIndex = 0;
+
+            selectedAnimation.state.rowIndex += 1;
+            if (selectedAnimation.state.rowIndex >= lightModel.options.lightRows) {
+                selectedAnimation.state.rowIndex = 0;
+            }
+        }
+        console.log("Index [" + selectedAnimation.state.columnIndex + ", " + selectedAnimation.state.rowIndex + "]");
+    }
+}
+
+const shimmer = {
+    id: "shimmer",
+    state: [],
+    animateFrame: () => {
+
+        lightModel.lights.map((row, rowIndex) => {
+            row.map((light, lightIndex) => {
+                light.color.r = light.color.r + (lightModel.colorShiftRate * 8 * lightIndex) + (2 * rowIndex);
+                if (light.color.r > 250) light.color.r = 0;
+                light.color.g = light.color.g + (lightModel.colorShiftRate * 5 * lightIndex) + (5 * rowIndex);
+                if (light.color.g > 250) light.color.g = 0;
+                light.color.b = light.color.b + (lightModel.colorShiftRate * 2 * lightIndex) + (8 * rowIndex);
+                if (light.color.b > 250) light.color.b = 0;
+            });
+        });
+    }
+}
+
 
 const lightsBoard = {
-    id: "Lights",
-    name: "Lights",
-    state: {
-        animationId: "lights",
-        lights: [],
-        isActive: true,
-        isAnimationActive: true,
-        brightness: 50,
-        colorShiftRate: 5,
-        bpm: 120,
-        framerate: 5,
-    },
-    options: {
-        tile: {
-            width: 10,
-            height: 10,
-            centerWidthOffset: 5,
-            centerHeightOffset: 5,
-        },
-        lightSize: 20,
-        lightRows: 3,
-        lightColumns: 3,
-    }
-    ,
     setup: function (p, elementId) {
-        console.log("Setup called for Lights board");
-        var canvas = p.createCanvas(400, 400);
+        console.log("Setup called for Lights board...");
+        console.log({ lightModel });
+
+        var canvas = p.createCanvas(lightModel.options.height, lightModel.options.width);
         canvas.parent(elementId);
         //p.noStroke();
         p.frameRate(5);
         //p.ellipseMode(p.RADIUS);
         // Set the starting position of the shape
-        console.log("Setup complete.");
 
-        const rows = this.options.lightRows;
-        const columns = this.options.lightColumns;
+        const rows = lightModel.options.lightRows;
+        const columns = lightModel.options.lightColumns;
 
-        this.options.tile.width = p.width / columns;
-        this.options.tile.height = p.height / rows;
-        this.options.tile.centerWidthOffset = this.options.tile.width / 2;
-        this.options.tile.centerHeightOffset = this.options.tile.height / 2;
+        lightModel.options.tile.width = p.width / columns;
+        lightModel.options.tile.height = p.height / rows;
+        lightModel.options.tile.centerWidthOffset = lightModel.options.tile.width / 2;
+        lightModel.options.tile.centerHeightOffset = lightModel.options.tile.height / 2;
 
+        delete lightModel.lights;
+        lightModel.lights = new Array();
+        
         for (var row = 0; row < rows; row++) {
             var lightRow = [];
             for (var column = 0; column < columns; column++) {
@@ -206,27 +297,25 @@ const lightsBoard = {
                     }
                 });
             }
-            this.state.lights.push(lightRow);
+            lightModel.lights.push(lightRow);
         }
+        console.log("Setup complete.");
     },
     draw: function (p) {
         p.clear();
         p.background(0);
-        if (!this.state.isActive) return;
+        let tile = lightModel.options.tile;
+        if (!lightModel.isActive) return;
         p.fill(230);
-        this.state.lights.map((row, rowIndex) => {
+
+        if (lightModel.isAnimationActive) {
+            selectedAnimation.animateFrame();
+        }
+
+        lightModel.lights.map((row, rowIndex) => {
             row.map((light, lightIndex) => {
                 p.fill(light.color.r, light.color.g, light.color.b);
-                p.circle((this.options.tile.width * lightIndex) + this.options.tile.centerWidthOffset, (this.options.tile.height * rowIndex) + this.options.tile.centerHeightOffset, this.options.lightSize);
-
-                if (this.state.isAnimationActive) {
-                    light.color.r = light.color.r + (this.state.colorShiftRate * 8 * lightIndex) + (2 * rowIndex);
-                    if (light.color.r > 250) light.color.r = 0;
-                    light.color.g = light.color.g + (this.state.colorShiftRate * 5 * lightIndex) + (5 * rowIndex);
-                    if (light.color.g > 250) light.color.g = 0;
-                    light.color.b = light.color.b + (this.state.colorShiftRate * 2 * lightIndex) + (8 * rowIndex);
-                    if (light.color.b > 250) light.color.b = 0;
-                }
+                p.circle((tile.width * lightIndex) + tile.centerWidthOffset, (tile.height * rowIndex) + tile.centerHeightOffset, lightModel.options.lightSize);
             });
         });
     }
